@@ -1,0 +1,207 @@
+#defcfunc wsitechk str p1
+	sdim res
+	neturl p1
+	netfileinfo res,""
+	if stat!=0{
+		await 100
+		return stat
+	}
+return 0
+
+#deffunc Navigate str p1
+	t="データを取得しています"
+	SetTitle t
+	objprm 0,p1
+	sdim URLType
+	URLType=p1
+
+	if 0=instr(URLType,0,":"){
+		#include "LychiPageManager.hsp"
+		return
+	}
+	objprm 1,t
+
+	//もし.txtで終わるなら
+	sdim tmp
+	split URLType,".",tmp
+	if tmp(length(tmp)-1)="txt"{
+		DoFetchData URLType
+		if res>0 {
+			netgetv PreRenderText//直接取得ができたなら表示、そうでなければr.jina経由
+			lf = "" : poke lf, 0, 10
+			crlf = "" : poke crlf, 0, 13 : poke crlf, 1, 10
+			strrep PreRenderText, lf, crlf
+			SetTitle "テキストファイルを表示"
+			objprm 1,PreRenderText
+			return
+		}
+	}
+
+	//もし無効な拡張子なら
+	sdim tmp
+	split URLType,".",tmp
+	list( 0)="jpg","png","gif","avif"
+	list( 4)="webp","zip","7z","gz"
+	list( 8)="bin","bmp","exe","gguf"
+	list(12)="iso","img","apk","py"
+	list(16)="c","bat","ps1","sh"
+	no_flag=-1
+	repeat length(list)-1
+		if tmp(length(tmp)-1)=list(cnt){no_flag=cnt}
+	loop
+	if no_flag!=-1{
+		SetTitle ""
+		t="移動先のファイル「."+list(no_flag)+"」は取り扱えません。"
+		objprm 1,t
+		res=0
+		return
+	}
+
+	t+="\n"+Var_MDRenderWebSite+" 経由でデータを受信中"
+	DoFetchData Var_MDRenderWebSite+"/"+p1
+	
+	if res>0 {
+		netgetv PreRenderText
+		t+="\n表示を整えています"
+		await 500
+		lf = "" : poke lf, 0, 10
+		crlf = "" : poke crlf, 0, 13 : poke crlf, 1, 10
+		strrep PreRenderText, lf, crlf
+		notesel PreRenderText
+		if notemax=1{
+			SetTitle
+			sdim t
+			t ="取得に失敗しました\n"
+			t+="エラーメッセージ:\n"
+			strrep PreRenderText,",","\n"
+			strrep PreRenderText,"{",""
+			strrep PreRenderText,"}",""
+			strrep PreRenderText,"\":",", "
+			strrep PreRenderText,"\"",""
+			t+=PreRenderText
+			objprm 1,t
+			return
+		}
+
+		sdim titleName
+		noteget titleName,0
+		strrep titleName,"Title: ",""
+		
+		sdim RawURL
+		noteget RawURL,2
+		strrep RawURL,"URL Source: ",""
+		objprm 0,RawURL
+		
+		dim flag
+		sdim RenderText
+		if 0=instr(URLType,0,"https://html.duckduckgo.com/html/"){
+			repeat notemax
+				//flagの扱い
+				//0: Markdown以前
+				//1: 題名・URLを探すモード
+				//2: 紹介テキストを探すモード
+				sdim tmp
+				noteget tmp,cnt
+				if flag=0 and tmp="Markdown Content:" { flag=1 : continue }
+				if flag=0 { continue }
+				if flag=1 and 0=instr(tmp,0,"## ["){
+					strrep tmp,"## [",""
+					strrep tmp,"[",""
+					strrep tmp,"](","」\nURL: "
+					strrep tmp,")",""
+					RenderText+="サイト「"+tmp+"\n\n"
+					flag=2
+				}
+				if flag=2 and 0=instr(tmp,0,"[") and 0!=instr(tmp,0,"[!"){
+					split tmp,"](",tmp
+					strrep tmp(0),"[",""
+					strrep tmp(0),"**",""
+					RenderText+=""+tmp(0)+"\n\n─────────────────────────────\n"
+					flag=1
+				}
+			loop
+		}else{
+			sdim last_type
+			last_type=""
+			repeat notemax
+				//flagの扱い
+				//0: Markdown以前
+				//1: 有効なページ
+				sdim tmp
+				noteget tmp,cnt
+				if flag=0 and tmp="Markdown Content:" { flag=1 : continue }
+				if flag=0 { continue }
+				//markdown 見出しの修正
+				if       0=instr(tmp,0,"# ") {
+					strrep tmp,"# ",""
+					RenderText+="「"+tmp+"」\n"
+				}else:if 0=instr(tmp,0,"## ") {
+					strrep tmp,"## ",""
+					RenderText+="■ "+tmp+"\n"
+				}else:if 0=instr(tmp,0,"### ") {
+					strrep tmp,"### ",""
+					RenderText+="◆ "+tmp+"\n"
+				}else:if 0=instr(tmp,0,"#### ") {
+					strrep tmp,"#### ",""
+					RenderText+="□ "+tmp+"\n"
+				}else:if 0=instr(tmp,0,"##### ") {
+					strrep tmp,"##### ",""
+					RenderText+="◇ "+tmp+"\n"
+				}else:if 0=instr(tmp,0,"###### ") {
+					strrep tmp,"###### ",""
+					RenderText+="* "+tmp+"\n"
+				}else{
+					repeat 8
+						strrep tmp,"**",""
+						strrep tmp,"* * *",""
+						strrep tmp,"*    ",""
+						strrep tmp,"*   ",""
+						strrep tmp,"*  ",""
+						strrep tmp,"* ",""
+						strrep tmp,"- ",""
+						strrep tmp,"[x]",""
+						strrep tmp,"[ ]",""
+						tmp=replace(tmp, "!\\[[^\\]]*\\]\\([^)]*\\)", "") //画像リンクの削除
+						tmp = replace(tmp, "\\[\\]\\([^)]*\\)", "")       //タイトルのないリンクの削除
+						tmp = replace(tmp, "\\[(.*?)\\]\\(\\1\\)", "$1")  //[]と()の中身が同じ場合、1つにする
+					loop
+					if last_type="" and tmp=""{
+						continue
+					}
+					RenderText+=tmp+"\n"
+					last_type=tmp
+				}
+				if strlen(RenderText)>20000 {
+					RenderText+="..."
+					break
+				}
+			loop
+		}
+		await 1000
+		SetTitle titleName
+		objprm 1,RenderText
+	}
+	if res<0 {
+		neterror tmp
+		t+="\n[失敗] "+cnvatos(tmp):objprm 1,t:title AppName+" v"+AppVer
+		objprm 1,t
+	}
+return
+
+#deffunc DoFetchData str p1
+	neturl p1
+	netrequest_get ""
+	dim res
+	await 100
+	repeat 64
+		netexec res
+		t+=".":objprm 1,t:SetTitle t
+		if res>0 or res<0{
+			break
+		}
+		await 1000
+		if cnt=(64-1) {
+			t+="\n[失敗] セッションがタイムアウト":objprm 1,t:title AppName+" v"+AppVer
+		}
+	loop
+return

@@ -1,0 +1,161 @@
+/*
+ HotStasher
+ 2026 ABATBeliever (https://abatbeliever.net/software/bin/HotStasher)
+*/
+//===================================================================================
+
+#packopt version "Build.ini" //詳細
+#packopt icon "app.ico"		 //アイコン
+
+#define ctype HIWORD(%1) (%1 >> 16 & $FFFF)
+//#include "hsp3utf.as"//UTF-8化
+#include "hspinet.as"//ネット通信
+#include "mod_rss.as"//RSS用
+#include "mod_regexp.as"//正規表現一括変換
+#include "hsp3cl.as"
+
+AppName          = "HotStasher"
+AppVer           = "0.1"
+AppVerInt        = "0.1"
+
+//onerror *HandleErr
+onexit *exit
+
+//////////////////////////////////////////////////////////////////
+//パースとモード確定
+
+//引数分解
+#include "argParser.hsp"
+if args(0)="" : args(0)="-h"
+/*
+mes "CMDLINE: '"+cmdline+"'"
+
+mes "ArgParser Begin"
+repeat length(args)
+	mes str(cnt)+": "+args(cnt)
+loop
+mes "ArgParser END\n"
+*/
+newcom spv, "Sapi.SpVoice"/*
+if varuse(spv)=0 {
+	mes "SAPI: False"
+}else{
+	mes "SAPI: True"
+}
+
+mes "LoadSetting Begin"
+*/
+dim mode
+sdim target : target="null"
+dim format
+
+repeat length(args)
+	sdim tmp
+	tmp=args(cnt)
+	if tmp="-v"{
+		mes AppName+" "+AppVer
+		goto *exit
+	}
+
+	if tmp="-h"{
+		mes AppName+{" ヘルプ
+
+・'-h' をつけるか引数をつけず実行すると、このヘルプを表示します
+・'-v' をつけると、バージョンを表示します
+・'-U' をつけると、更新確認を行います
+------------------------------------------------------------------------------------------
+基本構文
+ "}+AppName+{" target=○○ mode=○○ format=○○
+------------------------------------------------------------------------------------------
+ target
+  入力形式について、必須
+   URL(https://~)        : そのURLを直接利用します
+   ローカルパス(○:\//~) : そのパスにあるファイルをテキストとして中身のURLを利用します
+
+ mode
+  処理形式について、オプション指定
+   url  : 直接処理モードを指定   (こちらがデフォルト)
+   rss  : RSSフィードモードを指定
+
+ format
+  出力形式について、オプション指定
+   out : 標準出力に出力          (こちらがデフォルト)
+   txt : テキストファイルとして出力
+   md  : マークダウン風ファイルとして出力
+   say : SAPIで音声出力
+------------------------------------------------------------------------------------------
+"}
+		goto *exit
+	}
+
+	if tmp="-U"{
+		goto *Checking_Update
+		goto *exit
+	}
+
+	sdim arg
+	sdim txt
+	split tmp,"=",arg,txt
+	if length(txt)!=0{
+		input_data=txt(0)
+		repeat length(txt)-1
+			input_data+="="+txt(cnt+1)
+		loop
+	}else{
+		input_data=""
+	}
+	
+	switch arg
+		case "mode"
+			dim mode
+			mode=0
+//			if input_data="url" {mode=0}
+			if input_data="rss" {mode=1}
+			swbreak
+
+		case "target"
+			sdim target/*
+			if instr(input_data,0,"http")=0{
+				target=input_data
+			}else{
+				exist input_data
+				if strsize=-1{
+					mes "[0x52] "+AppName+" v"+AppVer+" terminated abnormally [target file not found]"
+				}else{
+					target="まだ準備中"
+				}
+			}*/
+			target=input_data
+			swbreak
+
+		case "format"
+			dim format
+			format=0
+//			if input_data="out" {format=0}
+			if input_data="txt" {format=1}
+			if input_data="md"  {format=2}
+			if input_data="say"  {format=3}
+			swbreak
+
+		default
+			mes "Can't read : "+str(tmp)
+			swbreak
+	swend
+loop
+
+mes "**********"
+mes "MODE  : "+str(mode)
+mes "TARGET: "+target
+mes "FORMAT: "+str(format)
+mes "LoadSetting END"
+
+stop
+
+#include "InternetManager.hsp"
+
+*exit
+end
+
+*HandleErr
+	mes "[0x"+strf("%04d]",wparam)+" "+AppName+" v"+AppVer+" terminated abnormally [HSP Error]"
+	goto *exit

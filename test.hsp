@@ -1,0 +1,265 @@
+#include "mod_regexp.as"
+var={"<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ABATBeliever.net へようこそ！</title>
+<meta name="viewport" content="initial-scale=1.0">
+<meta name="description" content="あびり【ABATBeliever】のホームページです。自作ソフトの配布からブログまで、ゆっくりしていってね。">
+<meta name="robots" content="index, follow">
+
+<meta property="og:title" content="ABATBeliever.net へようこそ！">
+<meta property="og:description" content="あびり【ABATBeliever】のホームページです。自作ソフトの配布からブログまで、ゆっくりしていってね。">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/src/img/sample1.png">
+
+
+<link rel="shortcut　icon" href="/src/favicon.ico">
+
+<!--
+Crawling & indexing information:
+This site **generally welcomes indexing and/or analysis**.
+See the following resources for details.
+
+robots.txt  → https://abatbeliever.net/robots.txt
+llms.txt    → https://abatbeliever.net/llms.txt
+sitemap.xml → https://abatbeliever.net/sitemap.xml
+-->
+
+<link rel="stylesheet" href="/src/css/kiso.css">
+<link rel="stylesheet" href="/src/css/style-v2.css">
+<link rel="stylesheet" href="/src/css/menu-v2.css">
+
+</head>
+<body>
+<div class="container">
+<h1 class="site-title">ABATBeliever.net</h1>
+<nav class="nav-menu">
+  <!-- メインタブ -->
+  <div class="nav-main-tabs">
+                <button
+        class="nav-tab-btn active"
+        data-tab="home"
+        data-url="/">
+        ホーム      </button>
+                <button
+        class="nav-tab-btn "
+        data-tab="soft"
+        >
+        ソフト      </button>
+                <button
+        class="nav-tab-btn "
+        data-tab="infomation"
+        >
+        情報      </button>
+                <button
+        class="nav-tab-btn "
+        data-tab="community"
+        data-url="/community/">
+        コミュニティ      </button>
+                <button
+        class="nav-tab-btn "
+        data-tab="links"
+        >
+        各種リンク      </button>
+      </div>
+  <!-- サブメニュー -->
+                  <div class="nav-sub-menu"
+           id="nav-sub-soft">
+                  <a href="/software/bin/">
+            フリーソフト          </a>
+                  <a href="/software/web/">
+            Webツール          </a>
+                  <a href="/software/b-extension/">
+            ブラウザ拡張機能          </a>
+                  <a href="/software/script/">
+            スクリプト          </a>
+                  <a href="/software/lib/">
+            ライブラリ          </a>
+                  <a href="/software/other/">
+            その他          </a>
+              </div>
+                <div class="nav-sub-menu"
+           id="nav-sub-infomation">
+                  <a href="/upd/">
+            アップデートセンター          </a>
+                  <a href="/bugs/">
+            ASI バグ脆弱性ビューワ          </a>
+                  <a href="/docs/">
+            ドキュメント          </a>
+                  <a href="/status.html">
+            サービスステータス          </a>
+              </div>
+                      <div class="nav-sub-menu"
+           id="nav-sub-links">
+                  <a href="/contact/">
+            連絡          </a>
+                  <a href="/contact/modern_meishi.html">
+            モダンな名刺          </a>
+                  <a href="/contact/banner/">
+            相互リンク・バナー          </a>
+              </div>
+      </nav>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  var currentOpenTab = null;
+
+  document.querySelectorAll(".nav-tab-btn").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      if (btn.dataset.url) {
+        location.href = btn.dataset.url;
+        return;
+      }
+
+      var tabKey = btn.dataset.tab;
+      var subMenu = document.getElementById("nav-sub-" + tabKey);
+      if (!subMenu) return;
+
+      var isOpen = subMenu.classList.contains("active");
+
+      document.querySelectorAll(".nav-tab-btn").forEach(function(b) { b.classList.remove("active"); });
+      document.querySelectorAll(".nav-sub-menu").forEach(function(m) {
+        m.classList.remove("active");
+      });
+
+      if (!isOpen) {
+        btn.classList.add("active");
+        subMenu.classList.add("active");
+        currentOpenTab = tabKey;
+      } else {
+        currentOpenTab = null;
+      }
+    });
+  });
+});
+</script>
+
+<div class="breadcrumb">
+現在の場所 : <a href="/">トップ</a>
+
+
+ &gt; ABATBeliever.net へようこそ！</div>
+
+<div id="seed-preview" class="md-body">
+<div class="gray-box">
+  <h2>ABATBeliever.net へようこそ！</h2>
+  <p>ABATBeliever.net は、あびり【ABATBeliever】のホームページです。<br>自作ソフトの配布からブログまで、ぜひゆっくりしていってね。</p>
+  <div class="notice">
+  <p><a href="./software/">→ ソフトウェアはこちら</a></p>
+  <p><a href="./upd/">→ アップデート確認...</a></p>
+  <p><a href="./status.html">→ サービスのステータス...</a></p>
+  <p><a href="./contact/">→ 各種リンク...</a></p>
+  <br>
+  <p><a href="./sitemap.html">→ サイトマップはこちら</a></p>
+  </div>
+  <br>
+  <span data-nosnippet>
+  <p><a href="https://abellate.net">→ 自作アベアテファンサイト「あべるあてねっと！」</a></p>
+  </span>
+  <p><a href="https://hspland.net">→ HSP言語(Hot Soup Processor 3.x)のサイト「HSPLand」</a></p>
+</div>
+<div class="gray-box">
+  <h2>自己紹介</h2>
+  <p>あびり【ABATBeliever】です！<span data-nosnippet>アベアテ信者&amp;原神の煙緋推し</span>??な人です。<br>趣味は自作サイト(ここもふくむ)やプログラミング、Linux、カリンバ(指ではじく楽器)、ジャンクPC、原神...etc。</p>
+  <div class="gray-box">
+    <h3>リアル向け</h3>
+    <p>2008年生まれで現在大学生(情報系)。埼玉県在住。<br>AIをローカルで動かす分野に関心がある。</p>
+  </div>
+  <div class="gray-box">
+    <h3>趣味</h3>
+    <div class="gray-box">
+      <h4>プログラミング</h4>
+      <p>.batのOSもどきやHSP言語から始まった世界。<br>HSP3.7やPythonで<a href="https://abatbeliever.net/software/bin/">GUIアプリ</a>を作ったり、<a href="https://abatbeliever.net/status.html">webサイト</a>や<a href="https://abatbeliever.net/software/web/">webツール</a>を作ったり。<br>例えばこのサイトはPHP+markdownの自作CMSで動いてます♪<br>省コストで何ができるか探求するのが好き。</p>
+    </div>
+    <span data-nosnippet>
+    <div class="gray-box">
+      <h4>推し活</h4>
+      <p>☆ 2026年から原神やってます。<br>　今の最推しは煙緋、続いてサンドローネ,ウェンティ,空,ノエルetc。(スメール時点)</p>
+      <p>☆ 2017年からアベアテの信者やってます。<br>　シリーズで一番好きなのはもしせか、次いでゆめせか。</p>
+      <p>※推し活分野ではAIは一切使いません。</p>
+    </div>
+    </span>
+    <div class="gray-box">
+      <h4>ガジェット</h4>
+      <p>ハードオフやメルカリでジャンクや中古ガジェットを買っていじるのが好き。<br>だいたいはノートPCだったりする。<br>スマートモニタにしたり、ビルド環境にしたりと有効活用～<br>カリンバみたいな小物も好き。</p>
+    </div>
+</div></div>
+</div>
+<script>
+(function () {
+    // copy ボタン
+    document.querySelectorAll('#seed-preview pre').forEach(function (pre) {
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.textContent = 'copy';
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            navigator.clipboard.writeText(code ? code.innerText : pre.innerText).then(function () {
+                btn.textContent = 'copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+            }).catch(function () {
+                btn.textContent = 'error';
+                setTimeout(function () { btn.textContent = 'copy'; }, 1500);
+            });
+        });
+        pre.appendChild(btn);
+    });
+})();
+</script><footer>
+&copy; 2021-2026 ABATBeliever.net<br>
+別に記載がない限り、サイトの内容は自由に利用できます。
+</footer>
+</div>
+<script src="/src/scripts/copy.js"></script>
+</body>
+</html>
+
+"}
+
+//すでにvarにはHTMLが入っているものとして
+
+// h1～h4 → Markdown見出し
+var = replace(var, "<h1\\b[^>]*>(.*?)</h1\\s*>", "# $1\n")
+var = replace(var, "<h2\\b[^>]*>(.*?)</h2\\s*>", "## $1\n")
+var = replace(var, "<h3\\b[^>]*>(.*?)</h3\\s*>", "### $1\n")
+var = replace(var, "<h4\\b[^>]*>(.*?)</h4\\s*>", "#### $1\n")
+
+// a → Markdownリンク
+var = replace(var, "<a\\b[^>]*href\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>(.*?)</a\\s*>", "[$2]($1)")
+
+// script / style / コメントを除去
+var = replace(var, "<script\\b[^>]*>[\\s\\S]*?</script\\s*>", "")
+var = replace(var, "<style\\b[^>]*>[\\s\\S]*?</style\\s*>", "")
+var = replace(var, "<!--[\\s\\S]*?-->", "")
+
+// HTMLタグを除去
+var = replace(var, "<[^>]*>", "")
+
+// 横方向の空白だけ整理
+var = replace(var, "[ \\t]+", " ")
+
+notesel var
+
+flag = 0
+sdim new_var
+
+repeat notemax
+	sdim tmp
+	noteget tmp,cnt
+	strrep tmp," ",""
+	strrep tmp,"　",""
+	if tmp="" {
+		if flag >= 2{
+			continue
+		}else{
+			flag++
+		}
+	}else{
+		flag = 0
+	}
+	noteget tmp,cnt
+	new_var+="\n"+tmp
+loop
+
+mesbox new_var,640,480

@@ -1,0 +1,57 @@
+*Checking_Update
+	exist "hspinet.dll"
+	if strsize=-1{
+		mes "[0x50] "+AppName+" v"+AppVer+" terminated abnormally [hspinet.dll not found]"
+		goto *exit
+	}
+	netinit
+	if stat {
+		mes "[0x51] "+AppName+" v"+AppVer+" terminated abnormally [Internet Connect init Failed]"
+		goto *exit
+	}
+	netagent ""+AppNameInternal+"/"+AppVerInt
+	neturl "https://abatbeliever.net/upd/"+AppName+"/win-x64"
+	netrequest_get ""
+	mes "更新を確認中 (https://abatbeliever.net/upd/"+AppName+"/win-x64)"
+	repeat 32
+//		mes "."
+		dim res
+		netexec res
+		if res>0 {
+			netgetv dat
+//			mes dat
+			if strlen(dat)>512 {
+				mes "[0x53] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Limit Error]"
+				goto *exit
+			}
+			split dat,",",dat
+			if dat(0)!="[HotStasher]"{
+				mes "[0x54] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Header Error]"
+				goto *exit
+			}
+			if length(dat)!=3{
+				mes "[0x55] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Syntax Error]"
+				goto *exit
+			}
+			if AppVerInt!=dat(1) {
+				mes "更新があります！\n"+dat(2)+"\nhttps://abatbeliever.net/software/"+AppName+"/ よりダウンロード"
+				goto *exit
+			}else{
+				mes "お使いのバージョンは最新版です"
+				goto *exit
+			}
+			break
+		}
+
+		if res<0 {
+			neterror dat
+			mes "[0x56] "+AppName+" v"+AppVer+" terminated abnormally [Internet Connect Post Error : "+dat+"]"
+			goto *exit
+		}
+		await 100
+		if cnt=15 {
+			mes "[0x57] "+AppName+" v"+AppVer+" terminated abnormally [Update Server TimeOut]"
+			goto *exit
+		}
+	loop
+goto *exit
