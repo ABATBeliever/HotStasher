@@ -15,8 +15,8 @@
 #include "hsp3cl.as"
 
 AppName          = "HotStasher"
-AppVer           = "0.1"
-AppVerInt        = "0.1"
+AppVer           = "0.2"
+//AppVerInt        = "0.2"
 
 //onerror *HandleErr
 onexit *exit
@@ -25,7 +25,7 @@ onexit *exit
 //パースとモード確定
 
 //引数分解
-#include "argParser.hsp"
+#include "lib_argParser.hsp"
 if args(0)="" : args(0)="-h"
 /*
 mes "CMDLINE: '"+cmdline+"'"
@@ -147,11 +147,19 @@ mes "**********"
 mes "MODE  : "+str(mode)
 mes "TARGET: "+target
 mes "FORMAT: "+str(format)
-mes "LoadSetting END"
+mes "LoadSetting END\n"
+
+sdim WebPageData
+WebPageData=DataFetch(input_data)
+if WebPageData!=-1{
+	mes WebPageData
+}
 
 stop
 
 #include "InternetManager.hsp"
+#include "DataFetchManager.hsp"
+#include "cnvUTF2ANSI.hsp"
 
 *exit
 end

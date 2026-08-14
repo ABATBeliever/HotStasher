@@ -10,27 +10,27 @@
 		goto *exit
 	}
 	netagent ""+AppNameInternal+"/"+AppVerInt
-	neturl "https://abatbeliever.net/upd/"+AppName+"/win-x64"
+	neturl "https://abatbeliever.net/upd/"+AppName+"/win-x86"
 	netrequest_get ""
-	mes "更新を確認中 (https://abatbeliever.net/upd/"+AppName+"/win-x64)"
-	repeat 32
-//		mes "."
+	mes "更新を確認中 (https://abatbeliever.net/upd/"+AppName+"/win-x86)"
+	repeat 64
+		mes ".",1
 		dim res
 		netexec res
 		if res>0 {
 			netgetv dat
 //			mes dat
 			if strlen(dat)>512 {
-				mes "[0x53] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Limit Error]"
+				mes "\n[0x53] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Limit Error]"
 				goto *exit
 			}
 			split dat,",",dat
 			if dat(0)!="[HotStasher]"{
-				mes "[0x54] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Header Error]"
+				mes "\n[0x54] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Header Error]"
 				goto *exit
 			}
 			if length(dat)!=3{
-				mes "[0x55] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Syntax Error]"
+				mes "\n[0x55] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Syntax Error]"
 				goto *exit
 			}
 			if AppVerInt!=dat(1) {
@@ -45,12 +45,12 @@
 
 		if res<0 {
 			neterror dat
-			mes "[0x56] "+AppName+" v"+AppVer+" terminated abnormally [Internet Connect Post Error : "+dat+"]"
+			mes "\n[0x56] "+AppName+" v"+AppVer+" terminated abnormally [Internet Connect Post Error : "+dat+"]"
 			goto *exit
 		}
-		await 100
+		await 30
 		if cnt=15 {
-			mes "[0x57] "+AppName+" v"+AppVer+" terminated abnormally [Update Server TimeOut]"
+			mes "\n[0x57] "+AppName+" v"+AppVer+" terminated abnormally [Update Server TimeOut]"
 			goto *exit
 		}
 	loop
