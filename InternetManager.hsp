@@ -9,7 +9,7 @@
 		mes "[0x51] "+AppName+" v"+AppVer+" terminated abnormally [Internet Connect init Failed]"
 		goto *exit
 	}
-	netagent ""+AppNameInternal+"/"+AppVerInt
+	netagent ""+AppName+"/"+AppVer
 	neturl "https://abatbeliever.net/upd/"+AppName+"/win-x86"
 	netrequest_get ""
 	mes "更新を確認中 (https://abatbeliever.net/upd/"+AppName+"/win-x86)"

@@ -1,4 +1,4 @@
-#defcfunc DataFetch str p1
+#defcfunc DataFetch str p1, int p2
 	exist "hspinet.dll"
 	if strsize=-1{
 		mes "[0x50] "+AppName+" v"+AppVer+" terminated abnormally [hspinet.dll not found]"
@@ -9,7 +9,7 @@
 		mes "[0x51] "+AppName+" v"+AppVer+" terminated abnormally [Internet Connect init Failed]"
 		goto *exit
 	}
-	netagent ""+AppNameInternal+"/"+AppVerInt
+	netagent ""+AppName+"/"+AppVer
 	neturl p1
 	netrequest_get ""
 	dim res
@@ -20,7 +20,7 @@
 		}
 		await 30
 		if cnt=(64-1) {
-			return -1
+			return "タイムアウトしました"
 		}
 	loop
 
@@ -33,28 +33,30 @@
 		crlf = "" : poke crlf, 0, 13 : poke crlf, 1, 10
 		strrep var, lf, crlf
 
-		// h1～h4 → Markdown見出し
-		var = replace(var, "<h1\\b[^>]*>(.*?)</h1\\s*>", "# $1\n")
-		var = replace(var, "<h2\\b[^>]*>(.*?)</h2\\s*>", "## $1\n")
-		var = replace(var, "<h3\\b[^>]*>(.*?)</h3\\s*>", "### $1\n")
-		var = replace(var, "<h4\\b[^>]*>(.*?)</h4\\s*>", "#### $1\n")
-		// a → Markdownリンク
-		var = replace(var, "<a\\b[^>]*href\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>(.*?)</a\\s*>", "[$2]($1)")
-		//画像リンクの削除
-		var = replace(var, "!\\[[^\\]]*\\]\\([^)]*\\)", "") 
-		//タイトルのないリンクの削除
-		var = replace(var, "\\[\\]\\([^)]*\\)", "")
-		//[]と()の中身が同じ場合、1つにする
-		var = replace(var, "\\[(.*?)\\]\\(\\1\\)", "$1")
-		// script / style / コメントを除去
-		var = replace(var, "<script\\b[^>]*>[\\s\\S]*?</script\\s*>", "")
-		var = replace(var, "<style\\b[^>]*>[\\s\\S]*?</style\\s*>", "")
-		var = replace(var, "<!--[\\s\\S]*?-->", "")
-		// HTMLタグを除去
-		var = replace(var, "<[^>]*>", "")
-		// 横方向の空白だけ整理
-		var = replace(var, "[ \\t]+", " ")
-		
+		if p2>0{					//1以上なら行う
+			// h1～h4 → Markdown見出し
+			var = replace(var, "<h1\\b[^>]*>(.*?)</h1\\s*>", "# $1\n")
+			var = replace(var, "<h2\\b[^>]*>(.*?)</h2\\s*>", "## $1\n")
+			var = replace(var, "<h3\\b[^>]*>(.*?)</h3\\s*>", "### $1\n")
+			var = replace(var, "<h4\\b[^>]*>(.*?)</h4\\s*>", "#### $1\n")
+			// a → Markdownリンク
+			var = replace(var, "<a\\b[^>]*href\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>(.*?)</a\\s*>", "[$2]($1)")
+			//画像リンクの削除
+			var = replace(var, "!\\[[^\\]]*\\]\\([^)]*\\)", "") 
+			//タイトルのないリンクの削除
+			var = replace(var, "\\[\\]\\([^)]*\\)", "")
+			//[]と()の中身が同じ場合、1つにする
+			var = replace(var, "\\[(.*?)\\]\\(\\1\\)", "$1")
+			// script / style / コメントを除去
+			var = replace(var, "<script\\b[^>]*>[\\s\\S]*?</script\\s*>", "")
+			var = replace(var, "<style\\b[^>]*>[\\s\\S]*?</style\\s*>", "")
+			var = replace(var, "<!--[\\s\\S]*?-->", "")
+			// HTMLタグを除去
+			var = replace(var, "<[^>]*>", "")
+			// 横方向の空白だけ整理
+			var = replace(var, "[ \\t]+", " ")
+		}
+
 		// 改行処理
 		notesel var
 		flag = 0
@@ -81,7 +83,6 @@
 
 	if res<0 {
 		neterror dat
-		dialog dat
-		return -2
+		return "取得失敗 :"+dat
 	}
 return
