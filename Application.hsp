@@ -14,7 +14,7 @@
 #include "hsp3cl.as"
 
 AppName = "HotStasher"
-AppVer  = "0.3"
+AppVer  = "0.4"
 
 onerror *HandleErr
 onexit *exit
@@ -25,27 +25,11 @@ onexit *exit
 //引数分解
 #include "lib_argParser.hsp"
 if args(0)="" : args(0)="-h"
-/*
-mes "CMDLINE: '"+cmdline+"'"
 
-mes "ArgParser Begin"
-repeat length(args)
-	mes str(cnt)+": "+args(cnt)
-loop
-mes "ArgParser END\n"
-*/
-newcom spv, "Sapi.SpVoice"/*
-if varuse(spv)=0 {
-	mes "SAPI: False"
-}else{
-	mes "SAPI: True"
-}
-
-mes "LoadSetting Begin"
-*/
-dim mode
-sdim target : target="null"
-dim format
+dim mode    : mode  =0
+sdim target : target=""
+dim format  : format=0
+dim detail  : detail=1
 
 repeat length(args)
 	sdim tmp
@@ -56,33 +40,13 @@ repeat length(args)
 	}
 
 	if tmp="-h"{
-		mes AppName+{" ヘルプ
-
-・'-h' をつけるか引数をつけず実行すると、このヘルプを表示します
-・'-v' をつけると、バージョンを表示します
-・'-U' をつけると、更新確認を行います
-------------------------------------------------------------------------------------------
-基本構文
- "}+AppName+{" target=○○ mode=○○ format=○○
-------------------------------------------------------------------------------------------
- target
-  入力形式について、必須
-   URL(https://~)        : そのURLを直接利用します、「<&>」で区切ることで複数指定可能
-   ローカルパス(○:\//~) : そのパスにあるファイルをテキストとして中身のURLを利用します
-
- mode
-  処理形式について、オプション指定
-   url  : 直接処理モードを指定   (こちらがデフォルト)
-   rss  : RSSフィードモードを指定
-
- format
-  出力形式について、オプション指定
-   out : 標準出力に出力          (こちらがデフォルト)
-   txt : テキストファイルとして出力
-   md  : マークダウン風ファイルとして出力
-   say : SAPIで音声出力
-------------------------------------------------------------------------------------------
-"}
+		mes AppName+" ヘルプ\n"
+		mes "Usage:\n  HotStasher target=○○ [mode=○○] [format=○○] [detail=○○]\n"
+		mes "Option:\n  -h          このヘルプを表示\n  -v          バージョンを表示\n  -U          更新確認\n"
+		mes "  target=○○   入力先（必須、空白が入る場合「\"」で囲ってください）\n    URL              URLを直接指定（<&>で複数指定可）\n    ファイルパス     ファイル内のURLを使用\n"
+		mes "  mode=○○     処理モード\n    url              URLとして処理（デフォルト）\n    rss              RSS/Atomフィードとして処理\n"
+		mes "  format=○○   出力形式\n    out              標準出力（デフォルト）\n    txt              テキストファイル出力\n    md               Markdown風ファイル出力\n    say              SAPIによる音声出力\n"
+		mes "  detail=○○   処理状況の表示\n    true             表示する（デフォルト）\n    false            表示しない"
 		goto *exit
 	}
 
@@ -125,13 +89,25 @@ repeat length(args)
 			if input_data="say"  {format=3}
 			swbreak
 
+		case "detail"
+			dim detail
+			detail=1
+			if input_data="false" {detail=0}
+			swbreak
+
 		default
-			mes "解釈できない引数です : "+str(tmp)
+			mes AppName+" v"+AppVer+" | 解釈できない引数です("+str(tmp)+")"
+			goto *exit
 			swbreak
 	swend
 loop
 
 //TARGETの解析
+
+if target=""{
+	mes AppName+" v"+AppVer+" | TARGET引数が指定されていません"
+	goto *exit
+}
 
 if instr(target,0,"http")=0{
 	split target,"<&>",target
@@ -151,7 +127,8 @@ if instr(target,0,"http")=0{
 }else{
 	exist target		//ファイル指定の場合
 	if strsize=-1{
-		mes "[0x52] "+AppName+" v"+AppVer+" terminated abnormally [target file not found]"
+		mes AppName+" v"+AppVer+" | TARGET引数で指定された対象に到達できません(ローカルファイル)"
+		goto *exit
 	}else{
 		sdim TARGET_File_buffer
 		notesel TARGET_File_buffer
@@ -174,10 +151,36 @@ if instr(target,0,"http")=0{
 	}
 }
 
+if mode=1{		//rss
+	sdim RSSLoadList
+	repeat length(LoadList)
+		 RSSLoadList(cnt)=LoadList(cnt)
+	loop
+	sdim LoadList
+	dim flag : flag=0		//初回の1つめの代入用
+	repeat length(RSSLoadList)
+		sdim RSSLoadResult	//仮のURLリスト入れ場の初期化
+		sdim dummy			//RSSの内容用
+		if detail {mes "[RSS] "+RSSLoadList(cnt)+" から抽出...",1}
+		rssload dummy,RSSLoadResult,RSSLoadList(cnt),65535
+		if stat=0{
+			repeat length(RSSLoadResult)
+				if flag{
+					LoadList(length(LoadList))=RSSLoadResult(cnt)
+				}else{
+					LoadList(0)=RSSLoadResult(0)
+					flag=1
+				}
+			loop
+		}
+		if detail {mes "終了("+str(length(RSSLoadResult))+"件)"}
+	loop
+}
+
 sdim WebPageRawData,,length(LoadList)	//アクセス後のデータ収集用
 
 repeat length(LoadList)
-	mes "処理: "+LoadList(cnt)
+	if detail {mes "[INFO] "+LoadList(cnt)+" を処理...",1}
 	sdim target
 	target=LoadList(cnt)
 
@@ -186,33 +189,37 @@ repeat length(LoadList)
 	}else{
 		WebPageRawData(cnt)=DataFetch(target,0)
 	}
+	if detail {mes "終了"}
 		
 loop
 
 if format=0 or format=3{
 	repeat length(WebPageRawData)
-		if WebPageRawData(cnt)!=-1 and WebPageRawData(cnt)!=-2{
-			if format=0{
-				mes WebPageRawData(cnt)
+		if format=0{
+			mes WebPageRawData(cnt)
+		}else{
+			newcom spv, "Sapi.SpVoice"
+			if varuse(spv)=0 {
+				mes AppName+" v"+AppVer+" | SAPIを初期化できませんでした"
+				goto *exit
 			}else{
-				spv->"Speak" WebPageRawData(cnt),0
+			if detail {mes "SAPIを利用し発話を開始します、Ctrl+Cで中断 ("+LoadList(cnt)+")"}
+			spv->"Speak" WebPageRawData(cnt),0
 			}
 		}
 	loop
 }else{							//txtまたはmd
 	sdim OUTPUT_File_buffer
 	repeat length(WebPageRawData)
-		if WebPageRawData(cnt)!=-1 and WebPageRawData(cnt)!=-2{
-			OUTPUT_File_buffer+="\n\n--- "+LoadList(cnt)+" ---\n"+WebPageRawData(cnt)
-		}else{
-			OUTPUT_File_buffer+="\n\n--- "+LoadList(cnt)+" ---\n取得に失敗"
-		}
+		OUTPUT_File_buffer+="\n\n--- "+LoadList(cnt)+" ---\n"+WebPageRawData(cnt)
 	loop
 	notesel OUTPUT_File_buffer
 	if format=1{
 		notesave ""+dir_cur+"\\out.txt"
+		if detail {mes ""+dir_cur+"\\out.txt に出力しました"}
 	}else{
 		notesave ""+dir_cur+"\\out.md"
+		if detail {mes ""+dir_cur+"\\out.md  に出力しました"}
 	}
 	noteunsel
 }
@@ -226,5 +233,5 @@ stop
 end
 
 *HandleErr
-	mes "[0x"+strf("%04d]",wparam)+" "+AppName+" v"+AppVer+" terminated abnormally [HSP Error]"
+	mes AppName+" v"+AppVer+" | HSP3内部エラー(#"+strf("%02d",wparam)+")が起こりました"
 	goto *exit

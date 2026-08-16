@@ -1,12 +1,17 @@
+/*
+ HotStasher
+ 2026 ABATBeliever (https://abatbeliever.net/software/bin/HotStasher)
+*/
+//===================================================================================
 #defcfunc DataFetch str p1, int p2
 	exist "hspinet.dll"
 	if strsize=-1{
-		mes "[0x50] "+AppName+" v"+AppVer+" terminated abnormally [hspinet.dll not found]"
+		mes AppName+" v"+AppVer+" | hspinet.dll‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ"
 		goto *exit
 	}
 	netinit
 	if stat {
-		mes "[0x51] "+AppName+" v"+AppVer+" terminated abnormally [Internet Connect init Failed]"
+		mes AppName+" v"+AppVer+" | hspinet‚Ì‰Šú‰»‚É¸”s‚µ‚Ü‚µ‚½"
 		goto *exit
 	}
 	netagent ""+AppName+"/"+AppVer

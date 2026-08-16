@@ -1,12 +1,17 @@
+/*
+ HotStasher
+ 2026 ABATBeliever (https://abatbeliever.net/software/bin/HotStasher)
+*/
+//===================================================================================
 *Checking_Update
 	exist "hspinet.dll"
 	if strsize=-1{
-		mes "[0x50] "+AppName+" v"+AppVer+" terminated abnormally [hspinet.dll not found]"
+		mes AppName+" v"+AppVer+" | hspinet.dllが見つかりません"
 		goto *exit
 	}
 	netinit
 	if stat {
-		mes "[0x51] "+AppName+" v"+AppVer+" terminated abnormally [Internet Connect init Failed]"
+		mes AppName+" v"+AppVer+" | hspinetの初期化に失敗しました"
 		goto *exit
 	}
 	netagent ""+AppName+"/"+AppVer
@@ -19,18 +24,17 @@
 		netexec res
 		if res>0 {
 			netgetv dat
-//			mes dat
 			if strlen(dat)>512 {
-				mes "\n[0x53] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Limit Error]"
+				mes "\n"+AppName+" v"+AppVer+" | 更新確認サーバからの応答が不正です(長すぎます)"
 				goto *exit
 			}
 			split dat,",",dat
 			if dat(0)!="[HotStasher]"{
-				mes "\n[0x54] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Header Error]"
+				mes "\n"+AppName+" v"+AppVer+" | 更新確認サーバからの応答が不正です(ヘッダー不良)"
 				goto *exit
 			}
 			if length(dat)!=3{
-				mes "\n[0x55] "+AppName+" v"+AppVer+" terminated abnormally [Update Server Response Syntax Error]"
+				mes "\n"+AppName+" v"+AppVer+" | 更新確認サーバからの応答が不正です(Syntaxエラー)"
 				goto *exit
 			}
 			if AppVerInt!=dat(1) {
@@ -45,12 +49,12 @@
 
 		if res<0 {
 			neterror dat
-			mes "\n[0x56] "+AppName+" v"+AppVer+" terminated abnormally [Internet Connect Post Error : "+dat+"]"
+			mes "\n"+AppName+" v"+AppVer+" | 更新確認サーバに接続できませんでした("+dat+")"
 			goto *exit
 		}
 		await 30
 		if cnt=15 {
-			mes "\n[0x57] "+AppName+" v"+AppVer+" terminated abnormally [Update Server TimeOut]"
+			mes "\n"+AppName+" v"+AppVer+" | 更新確認サーバに接続できませんでした(タイムアウト)"
 			goto *exit
 		}
 	loop
