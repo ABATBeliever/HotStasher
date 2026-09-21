@@ -7,10 +7,8 @@
 
 #deffunc utf8toansi var src, var dst
 
-	; UTF-8 Å® UTF-16
 	sdim wide, (strlen(src) + 1) * 2
 
-	; -1ÇéwíËÇ∑ÇÈÇ∆NULLèIí[Ç‹Ç≈ïœä∑
 	wlen = MultiByteToWideChar(CP_UTF8, 0, varptr(src), -1, varptr(wide), strlen(src) + 1)
 
 	if wlen == 0 {
@@ -18,7 +16,6 @@
 		return
 	}
 
-	; UTF-16 Å® CP932
 	sdim dst, wlen * 2
 
 	alen = WideCharToMultiByte(CP932, 0, varptr(wide), -1, varptr(dst), wlen * 2, 0, 0)

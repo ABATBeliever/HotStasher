@@ -14,7 +14,7 @@
 #include "hsp3cl.as"
 
 AppName = "HotStasher"
-AppVer  = "0.4"
+AppVer  = "1.0"
 
 onerror *HandleErr
 onexit *exit
