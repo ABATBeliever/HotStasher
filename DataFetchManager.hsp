@@ -9,7 +9,7 @@
 		mes AppName+" v"+AppVer+" | hspinet‚Ì‰Šú‰»‚É¸”s‚µ‚Ü‚µ‚½"
 		goto *exit
 	}
-	netagent ""+AppName+"/"+AppVer
+	netagent ua@
 	neturl p1
 	netrequest_get ""
 	dim res
@@ -27,7 +27,7 @@
 	if res>0 {
 		sdim var
 		netgetv var
-		utf8toansi var,var
+		if encode@{utf8toansi var,var}
 
 		lf = "" : poke lf, 0, 10
 		crlf = "" : poke crlf, 0, 13 : poke crlf, 1, 10

@@ -14,7 +14,7 @@
 #include "hsp3cl.as"
 
 AppName = "HotStasher"
-AppVer  = "1.0"
+AppVer  = "1.1"
 
 onerror *HandleErr
 onexit *exit
@@ -30,6 +30,8 @@ dim mode    : mode  =0
 sdim target : target=""
 dim format  : format=0
 dim detail  : detail=1
+sdim ua     : ua=AppName+"/"+AppVer
+dim encode  : encode=1
 
 repeat length(args)
 	sdim tmp
@@ -41,12 +43,14 @@ repeat length(args)
 
 	if tmp="-h"{
 		mes AppName+" ヘルプ\n"
-		mes "Usage:\n  HotStasher target=○○ [mode=○○] [format=○○] [detail=○○]\n"
+		mes "Usage:\n  HotStasher target=○○ [mode=○○] [format=○○] [detail=○○] [useragent=○○] [encoding=○○]\n"
 		mes "Option:\n  -h          このヘルプを表示\n  -v          バージョンを表示\n  -U          更新確認\n"
 		mes "  target=○○   入力先（必須、空白が入る場合「\"」で囲ってください）\n    URL              URLを直接指定（<&>で複数指定可）\n    ファイルパス     ファイル内のURLを使用\n"
 		mes "  mode=○○     処理モード\n    url              URLとして処理（デフォルト）\n    rss              RSS/Atomフィードとして処理\n"
 		mes "  format=○○   出力形式\n    out              標準出力（デフォルト）\n    txt              テキストファイル出力\n    md               Markdown風ファイル出力\n    say              SAPIによる音声出力\n"
-		mes "  detail=○○   処理状況の表示\n    true             表示する（デフォルト）\n    false            表示しない"
+		mes "  detail=○○   処理状況の表示\n    true             表示する（デフォルト）\n    false            表示しない\n"
+		mes "  encoding=○○   読み込むエンコードの指定\n    utf8             UTF-8（デフォルト）\n    sjis             Shift-JIS\n"
+		mes "  useragent=○○   UserAgentを指定 (デフォルト: "+AppName+"/"+AppVer+")"
 		goto *exit
 	}
 
@@ -86,13 +90,21 @@ repeat length(args)
 			if input_data="out" {format=0}
 			if input_data="txt" {format=1}
 			if input_data="md"  {format=2}
-			if input_data="say"  {format=3}
+			if input_data="say" {format=3}
 			swbreak
 
 		case "detail"
 			dim detail
 			detail=1
 			if input_data="false" {detail=0}
+			swbreak
+
+		case "useragent"
+			ua=input_data
+			swbreak
+
+		case "encoding"
+			if input_data="sjis" {encode=0}
 			swbreak
 
 		default
